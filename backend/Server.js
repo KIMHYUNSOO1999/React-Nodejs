@@ -106,12 +106,14 @@ app.post('/api/v1/user/login', async (req, res) => {
         - status 401 { success : false, msg : '만료된 토큰' }
 
 */
-app.get('/api/v1/user/auth', authToken, (req, res) => {
+app.get('/api/v1/user/auth', authToken, async (req, res) => {
+
+    const user = await User.findById(req.user.id);
 
     res.status(200).json({
       success : true,
       msg: '유효한 토큰',
-      user: req.user 
+      user: user.id 
     });
 
 });
