@@ -1,19 +1,19 @@
 import { useState } from "react";
 import axios from "axios";
-import Alert from "./Alert";
+import { useAlert } from "../Layout/SetAlert";
 
 function SendRegister({ onVerificationRequest, isEmailVerified }) {
   const [emailId, setEmailId] = useState("");
   const [emailDomain, setEmailDomain] = useState("naver.com");
   const [isEmailSending, setIsEmailSending] = useState(false);
-  const [alert, setAlert] = useState(null);
+  const { showAlert } = useAlert();
 
   const email = `${emailId}@${emailDomain}`;
 
   const handleEmailVerification = async () => {
     try {
       if (!emailId) {
-        setAlert({ message: "이메일을 입력해주세요", type: "error" });
+        showAlert("이메일을 입력해주세요","error");
         return;
       }
       setIsEmailSending(true);
@@ -21,9 +21,9 @@ function SendRegister({ onVerificationRequest, isEmailVerified }) {
       onVerificationRequest(email);
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        setAlert({ message: "이미 인증된 이메일입니다.", type: "error" });
+        showAlert("이미 인증된 이메일입니다.","error");
       } else {
-        setAlert({ message: "이메일을 확인해주세요.", type: "error" });
+        showAlert("이메일을 확인해주세요.","error");
       }
     } finally {
       setIsEmailSending(false);
@@ -31,14 +31,7 @@ function SendRegister({ onVerificationRequest, isEmailVerified }) {
   };
 
   return (
-    <>
-      {alert && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert(null)}
-        />
-      )}
+
       <div className="flex gap-2">
         <div className="flex gap-2 w-full">
           <input
@@ -76,7 +69,6 @@ function SendRegister({ onVerificationRequest, isEmailVerified }) {
           )}
         </button>
       </div>
-    </>
   );
 }
 

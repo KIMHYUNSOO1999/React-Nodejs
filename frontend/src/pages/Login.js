@@ -1,13 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Alert from "../Components/Alert";
+import { useAlert } from "../Layout/SetAlert";
 
 function Login({ onLogin }) {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const navigate = useNavigate(); 
-  const [alert, setAlert] = useState(null);
+  const { showAlert } = useAlert();
+
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ function Login({ onLogin }) {
 
     } catch (err) {
 
-      setAlert({ message: "아이디/비밀번호를 확인해주세요.", type: "error" });
+      showAlert("아이디/비밀번호를 확인해주세요.", "error");
 
     }
   };
@@ -30,14 +31,6 @@ function Login({ onLogin }) {
   };
 
   return (
-    <>
-      {alert && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert(null)}
-        />
-      )}
     <form onSubmit={onSubmit} className="max-w-sm mx-auto mt-10 p-6 border rounded shadow space-y-4">
       <h2 className="text-2xl font-bold">로그인</h2>
       <input
@@ -77,9 +70,7 @@ function Login({ onLogin }) {
           아이디/비밀번호 찾기
         </span>
       </p>
-
     </form>
-    </>
   );
   
 }

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 import IdCheck from "../Components/IdCheck";
 import SendRegister from "../Components/SendRegister";
 import VerifyRegister from "../Components/VerifyRegister";
-import Alert from "../Components/Alert";
+
+import { useAlert } from "../Layout/SetAlert";
 
 function Register() {
   const [id, setId] = useState("");
@@ -17,7 +19,7 @@ function Register() {
   const [isIdChecked, setIsIdChecked] = useState(false);
   const [idCheckMessage, setIdCheckMessage] = useState("");
 
-  const [alert, setAlert] = useState(null);
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
 
   const handleEmailVerificationRequest = (verifiedEmail) => {
@@ -36,20 +38,20 @@ function Register() {
     e.preventDefault();
     try {
       if (!isIdChecked) {
-        setAlert({ message: "아이디 중복 확인을 해주세요.", type: "error" });
+        showAlert("아이디 중복 확인을 해주세요.", "error");
         return;
       }
 
       if (!isEmailVerified) {
-        setAlert({ message: "이메일 인증을 완료해주세요.", type: "error" });
+        showAlert( "이메일 인증을 완료해주세요.", "error");
         return;
       }
 
       await axios.post("api/v1/user/signup", { id, pw, email });
-      setAlert({ message: "회원가입 성공", type: "success" });
+      showAlert("회원가입 성공", "success" );
       navigate("/");
     } catch (err) {
-      setAlert({ message: "회원가입에 실패했습니다.", type: "error" });
+      showAlert("회원가입에 실패했습니다.", "error" );
     }
   };
 
@@ -65,14 +67,6 @@ function Register() {
   };
 
   return (
-    <>
-      {alert && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert(null)}
-        />
-      )}
       <form
         onSubmit={onSubmit}
         className="max-w-sm mx-auto mt-10 p-6 border rounded shadow space-y-4"
@@ -137,7 +131,6 @@ function Register() {
           회원가입
         </button>
       </form>
-    </>
   );
 }
 

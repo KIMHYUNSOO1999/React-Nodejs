@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Alert from "./Alert";
+import { useAlert } from "../Layout/SetAlert";
 
 function VerifyRegister({ email, onVerificationComplete }) {
   const [verificationCode, setVerificationCode] = useState("");
   const [timer, setTimer] = useState(180);
   const [timerActive, setTimerActive] = useState(true);
-  const [alert, setAlert] = useState(null);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     let interval;
@@ -37,19 +37,11 @@ function VerifyRegister({ email, onVerificationComplete }) {
       onVerificationComplete();
       setTimerActive(false);
     } catch (err) {
-      setAlert({ message: "인증 코드가 올바르지 않습니다.", type: "error" });
+      showAlert("인증 코드가 올바르지 않습니다.","error");
     }
   };
 
   return (
-    <>
-      {alert && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert(null)}
-        />
-      )}
 
       <div className="space-y-2">
         {timer > 0 && (
@@ -76,7 +68,6 @@ function VerifyRegister({ email, onVerificationComplete }) {
             : "인증 시간이 만료되었습니다."}
         </p>
       </div>
-    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Alert from "./Alert";
+import { useAlert } from "../Layout/SetAlert";
 
 function ChangePassword({ onLogout }) {
   
@@ -9,7 +9,7 @@ function ChangePassword({ onLogout }) {
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [step, setStep] = useState(1); 
-  const [alert, setAlert] = useState(null);
+  const { showAlert } = useAlert();
 
   const navigate = useNavigate();
 
@@ -24,10 +24,10 @@ function ChangePassword({ onLogout }) {
       if (res.data.success) {
         setStep(2);
       } else {
-        setAlert({ message: "비밀번호 확인 실패", type: "error" });
+        showAlert("비밀번호 확인 실패", "error");
       }
     } catch (err) {
-      setAlert({ message: "비밀번호를 확인해주세요", type: "error" });
+      showAlert("비밀번호를 확인해주세요", "error");
     }
   };
 
@@ -35,7 +35,7 @@ function ChangePassword({ onLogout }) {
     e.preventDefault();
 
     if (newPw !== confirmPw) {
-      setAlert({ message: "새 비밀번호가 일치하지 않습니다.", type: "error" });
+      showAlert("새 비밀번호가 일치하지 않습니다.", "error");
       return;
     }
 
@@ -55,22 +55,14 @@ function ChangePassword({ onLogout }) {
         navigate("/"); 
         
       } else {
-        setAlert({ message: "비밀번호 변경 실패", type: "error" });
+        showAlert("비밀번호 변경 실패","error");
       }
     } catch (err) {
-      setAlert({ message: "기존 비밀번호 일치", type: "error" });
+      showAlert("기존 비밀번호 일치", "error");
     }
   };
 
   return (
-    <>
-      {alert && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert(null)}
-        />
-      )}
       <div className="max-w-md mx-auto space-y-4">
         <h2 className="text-2xl font-bold text-center">비밀번호 변경</h2>
 
@@ -120,7 +112,6 @@ function ChangePassword({ onLogout }) {
         </form>
       )}
     </div>
-    </>
   );
 }
 
