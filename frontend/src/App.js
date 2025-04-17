@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import axios from "axios";
 
 import Register from "./pages/Register";
@@ -32,7 +32,7 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <header className="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
           <h1 className="text-2xl font-bold">
-            <Link to="/">TEST</Link>
+            <Link to="/">TEST.COM</Link>
           </h1>
           <nav className="space-x-4">
             <Link to="/" className="hover:underline">홈</Link>
@@ -44,7 +44,6 @@ function App() {
             ) : (
               <>
                 <Link to="/login" className="hover:underline">로그인</Link>
-                <Link to="/register" className="hover:underline">회원가입</Link>
               </>
             )}
           </nav>

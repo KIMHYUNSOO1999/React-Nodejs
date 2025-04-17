@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Alert from "./Alert";
 
 function ChangePassword({ onLogout }) {
+  
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [step, setStep] = useState(1); 
+  const [alert, setAlert] = useState(null);
 
   const navigate = useNavigate();
 
@@ -21,10 +24,10 @@ function ChangePassword({ onLogout }) {
       if (res.data.success) {
         setStep(2);
       } else {
-        alert(res.data.msg || "비밀번호 확인 실패");
+        setAlert({ message: "비밀번호 확인 실패", type: "error" });
       }
     } catch (err) {
-      alert("비밀번호를 확인해주세요");
+      setAlert({ message: "비밀번호를 확인해주세요", type: "error" });
     }
   };
 
@@ -32,7 +35,7 @@ function ChangePassword({ onLogout }) {
     e.preventDefault();
 
     if (newPw !== confirmPw) {
-      alert("새 비밀번호가 일치하지 않습니다.");
+      setAlert({ message: "새 비밀번호가 일치하지 않습니다.", type: "error" });
       return;
     }
 
@@ -52,16 +55,24 @@ function ChangePassword({ onLogout }) {
         navigate("/"); 
         
       } else {
-        alert(res.data.msg || "비밀번호 변경 실패");
+        setAlert({ message: "비밀번호 변경 실패", type: "error" });
       }
     } catch (err) {
-      alert("기존 비밀번호 일치");
+      setAlert({ message: "기존 비밀번호 일치", type: "error" });
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow space-y-4">
-      <h2 className="text-2xl font-bold text-center">비밀번호 변경</h2>
+    <>
+      {alert && (
+        <Alert
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
+      <div className="max-w-md mx-auto space-y-4">
+        <h2 className="text-2xl font-bold text-center">비밀번호 변경</h2>
 
       {step === 1 && (
         <form onSubmit={checkCurrentPw} className="space-y-4">
@@ -109,6 +120,7 @@ function ChangePassword({ onLogout }) {
         </form>
       )}
     </div>
+    </>
   );
 }
 

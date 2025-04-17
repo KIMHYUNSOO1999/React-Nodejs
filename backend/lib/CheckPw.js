@@ -2,7 +2,7 @@
   Config
 */
 
-const User = require('../db/User');
+const User = require('../models/user');
 
 /*
     Function checkPassword

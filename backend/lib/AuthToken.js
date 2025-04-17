@@ -3,7 +3,11 @@
 */
 
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'secret_key';
+
+/*
+  Local
+*/
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /*
     Function AuthToken

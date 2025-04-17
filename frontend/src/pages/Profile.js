@@ -4,6 +4,7 @@ import ChangePassword from "../Components/ChangePassword";
 import LoadingSpinner from "../Components/LoadingSpinner"; 
 
 function Profile({ onLogout }) {
+  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChangePw, setShowChangePw] = useState(false);
@@ -47,7 +48,7 @@ function Profile({ onLogout }) {
       {!showChangePw ? (
         <>
           <h3 className="text-2xl font-bold text-blue-600 mb-2">
-            닉네임: {user.nickname || user}
+            닉네임: {user}
           </h3>
           <button
             onClick={() => setShowChangePw(true)}
