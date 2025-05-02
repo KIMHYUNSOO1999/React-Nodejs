@@ -208,7 +208,7 @@ user.post('/signup', async (req, res) => {
 
 */
 user.post('/pwCheck', authToken, checkPw, (req, res) => {
-  res.status(200).json({ success: true, message: '비밀번호 일치' });
+  res.status(200).json({ success: true, msg: '비밀번호 일치' });
 });
 
 /*
@@ -230,7 +230,7 @@ user.post('/pwCheck', authToken, checkPw, (req, res) => {
 
 */
 user.post('/idCheck', checkId, (req, res) => {
-  res.status(200).json({ success: true, message: '아이디 중복X' });
+  res.status(200).json({ success: true, msg: '아이디 중복X' });
 });
 
 /*
@@ -262,17 +262,17 @@ user.post('/pwChange', authToken, async (req, res) => {
     const user = await User.findById(req.user.id);
 
     if (newPw == user.pw) {
-      return res.status(400).json({ success: false, message: '구비밀번호와 일치' });
+      return res.status(400).json({ success: false, msg: '구비밀번호와 일치' });
     }
 
     user.pw = newPw;
     await user.save();
 
-    return res.status(200).json({ success: true, message: '비밀번호 변경완료' });
+    return res.status(200).json({ success: true, msg: '비밀번호 변경완료' });
   
   }
   catch (err) {
-    return res.status(500).json({ success: false, message: '서버 오류' });
+    return res.status(500).json({ success: false, msg: '서버 오류' });
   }
 });
   

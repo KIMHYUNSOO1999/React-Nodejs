@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ChangePassword from "../Components/ChangePassword";
 import LoadingSpinner from "../Components/LoadingSpinner"; 
+import { useAlert } from "../Layout/SetAlert";
 
 function Profile({ onLogout }) {
   
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChangePw, setShowChangePw] = useState(false);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -17,13 +19,13 @@ function Profile({ onLogout }) {
         });
         setUser(res.data.user);
       } catch (err) {
-        console.log("인증 실패:", err.message);
+        showAlert("인증 실패", "error");
       } finally {
         setLoading(false);
       }
     };
     fetchUser();
-  }, []);
+  }, [showAlert]);
 
   if (loading) {
     return (
@@ -44,7 +46,7 @@ function Profile({ onLogout }) {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow bg-white space-y-4">
+    <div className="max-w-md mx-auto mt-5 p-6 border rounded shadow bg-white space-y-4">
       {!showChangePw ? (
         <>
           <h3 className="text-2xl font-bold text-blue-600 mb-2">

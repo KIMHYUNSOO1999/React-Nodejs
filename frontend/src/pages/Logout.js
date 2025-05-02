@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "../Layout/SetAlert";
 
 function Logout({ onLogout }) {
 
   const navigate = useNavigate(); 
-
+  const { showAlert } = useAlert();
   const handleLogout = async () => {
     try {
       
@@ -14,7 +15,7 @@ function Logout({ onLogout }) {
 
     } catch (err) {
 
-      console.error("로그아웃 실패:", err.message);
+      showAlert("서버오류", "error");
 
     }
   };
