@@ -12,6 +12,7 @@ const EmailAuth = require('../models/EmailAuth');
 const authToken = require('../lib/AuthToken');
 const checkPw = require('../lib/CheckPw');
 const checkId = require('../lib/CheckId');
+const { CheckEmailToken } = require('../lib/CheckEmailToken');
 
 /*
   local
@@ -45,7 +46,7 @@ user.post('/login', async (req, res) => {
     
     try {
   
-      const user = await User.findOne({ id });
+      const user = await User.findOne({ id, useyn: true });
   
       if (!user || user.pw !== pw) {
         return res.status(400).json({ success : false, msg: '아이디/비밀번호를 다시 확인해주세요.' });
@@ -87,7 +88,7 @@ user.post('/login', async (req, res) => {
 */
 user.get('/auth', authToken, async (req, res) => {
 
-    const user = await User.findById(req.user.id);
+  const user = await User.findOne({ _id: req.user.id, useyn: true });
 
     res.status(200).json({
       success : true,
@@ -144,7 +145,7 @@ user.post('/signup', async (req, res) => {
 
   try {
 
-    const idFlag = await User.findOne({ id });
+    const idFlag = await User.findOne({ id, useyn : true });
 
     // flag 1
     if (idFlag) {
@@ -152,7 +153,7 @@ user.post('/signup', async (req, res) => {
     }
 
     // flag 2
-    const emailFlag = await User.findOne({ email });
+    const emailFlag = await User.findOne({ email, useyn : true });
 
     if (emailFlag) {
       return res.status(400).json({ success : false, msg: '이메일 존재' });
@@ -184,6 +185,58 @@ user.post('/signup', async (req, res) => {
 
   }
 
+});
+
+/*
+    [POST] /api/v1/user/signoff
+    - 회원탈퇴
+
+    0. Import
+      - Function : authToken
+    
+    1. Output
+      a. Success
+        - status 200 { success : true,  msg : '회원탈퇴 성공'}
+      b. Fail
+        - status 400 { success : false, msg : '이미 탈퇴했거나 존재하지 않는 유저' }
+        - status 500 { success : false, msg : '서버 오류' }
+
+*/
+user.post('/signoff', authToken, async (req, res) => {
+
+  try {
+
+    const user = await User.findOne({ _id: req.user.id, useyn: true });
+
+    if (!user || !user.useyn) {
+      return res.status(404).json({ success: false, msg: '이미 탈퇴했거나 존재하지 않는 유저' });
+    }
+
+    const now = new Date();
+    const pad = (n) => n.toString().padStart(2, '0');
+
+    const timestamp = 
+      now.getFullYear().toString() +
+      pad(now.getMonth() + 1) +
+      pad(now.getDate()) +
+      pad(now.getHours()) +
+      pad(now.getMinutes()) +
+      pad(now.getSeconds());
+
+    user.id = `${user.id}_delete_${timestamp}`;
+    user.email = `${user.email}_delete_${timestamp}`;
+    user.useyn = false;
+    user.usedate = Date.now();
+    
+    await user.save();
+
+    res.clearCookie('authToken');
+
+    res.status(200).json({ success: true, msg: '회원탈퇴 완료' });
+
+  } catch (err) {
+    res.status(500).json({ success: false, msg: '서버 오류' });
+  }
 });
 
 /*
@@ -259,7 +312,7 @@ user.post('/pwChange', authToken, async (req, res) => {
 
   try{
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findOne({ _id: req.user.id, useyn: true });
 
     if (newPw == user.pw) {
       return res.status(400).json({ success: false, msg: '구비밀번호와 일치' });
@@ -276,5 +329,63 @@ user.post('/pwChange', authToken, async (req, res) => {
   }
 });
   
+/*
+  [POST] /api/v1/user/reset-password
+  - 비밀번호 변경
+
+    0. Import
+      - Function : CheckEmailToken
+
+    1. Input 
+      - Body : { token : String, newPw : String }
+    
+    2. Output
+     a. Success
+        - status 200 { success : true, msg : '리셋 성공' }
+     b. Fail
+        - status 404 { success : false, msg : '인증 없음 || 사용자 무효' }
+        - status 409 { success : false, msg : '인증 중복' }        
+        - status 410 { success : false, msg : '시간 만료' }             
+        - status 500 { success : false, msg : '서버 오류' }
+
+*/
+user.post('/reset-password', async (req, res) => {
+  
+  const { token, newPw } = req.body;
+
+  try {
+
+    // flag 1
+    const result = await CheckEmailToken({ token });
+
+    if (result.status !== 200) {
+      return res.status(result.status).json({ success: false, msg: result.msg });
+    }
+
+    // flag 2
+    const user = await User.findOne({ email: result.auth.email, useyn : true });
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: '사용자 무효' });
+    }
+
+    // TO-DO
+    user.pw = newPw
+    await user.save();
+
+    result.auth.status = true;
+    await result.auth.save();
+
+    return res.status(200).json({ success: true, msg: '리셋 성공'});
+
+  } catch (err) {
+
+    console.log(err);
+  
+    return res.status(500).json({ success: false, msg: '서버 오류' });
+
+  }
+});
+
 
 module.exports = user; 

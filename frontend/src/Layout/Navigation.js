@@ -8,7 +8,7 @@ export function Navigation({ user, onLogout }) {
         <>
           <Link to="/profile" className="hover:underline">
             <img
-                src="   https://cdn-icons-png.flaticon.com/512/11081/11081570.png" 
+                src="https://cdn-icons-png.flaticon.com/512/11081/11081570.png" 
                 alt="Profile Icon"
                 className="inline-block w-6 h-6"
                 title="프로필"

@@ -15,7 +15,7 @@ const CheckPw = async (req, res, next) => {
     
     try{
 
-        const user = await User.findById(req.user.id); 
+        const user = await User.findOne({ _id: req.user.id, useyn: true });
         const ReqPw = req.body.pw
 
         if (!user) {

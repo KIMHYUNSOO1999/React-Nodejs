@@ -30,6 +30,11 @@ function Login({ onLogin }) {
     navigate("/register");
   };
 
+  const goFindEmail = () => {
+    navigate("/find-email");
+  };
+
+
   return (
     <form onSubmit={onSubmit} className="max-w-sm mx-auto mt-10 p-6 border rounded shadow space-y-4">
       <h2 className="text-2xl font-bold">로그인</h2>
@@ -65,6 +70,7 @@ function Login({ onLogin }) {
 
       <p className="text-center text-sm">
         <span
+          onClick={goFindEmail}
           className="text-gray-600 font-semibold cursor-pointer hover:underline"
         >
           아이디/비밀번호 찾기

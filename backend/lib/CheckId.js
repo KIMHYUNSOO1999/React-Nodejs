@@ -16,7 +16,7 @@ const checkId = async (req, res, next) => {
     try{
 
         const Reqid = req.body.id;
-        const user = await User.findOne({ id : Reqid }); 
+        const user = await User.findOne({ id : Reqid, useyn : true }); 
 
         if (user) {
             return res.status(400).json({ success: false, message: "아이디 존재" });

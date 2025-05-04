@@ -30,8 +30,7 @@ function VerifyRegister({ email, onVerificationComplete }) {
 
   const handleVerificationCheck = async () => {
     try {
-      await axios.post("api/v1/auth/verify-Register", {
-        email,
+      await axios.post("api/v1/auth/verify-register", {
         token: verificationCode
       });
       onVerificationComplete();

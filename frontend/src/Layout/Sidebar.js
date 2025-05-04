@@ -19,8 +19,8 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, sidebarRef }) {
           >
             홈
           </Link>
-        </li>
-        <li>
+        </li>     
+        <li>          
           <Link
             to="/Board"
             onClick={() => setSidebarOpen(false)}
