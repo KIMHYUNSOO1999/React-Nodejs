@@ -3,6 +3,7 @@
 */
 
 const express = require('express');
+const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const user = express.Router();
 
@@ -12,6 +13,7 @@ const EmailAuth = require('../models/EmailAuth');
 const authToken = require('../lib/AuthToken');
 const checkPw = require('../lib/CheckPw');
 const checkId = require('../lib/CheckId');
+const checkNickname = require('../lib/CheckNickname');
 const { CheckEmailToken } = require('../lib/CheckEmailToken');
 
 /*
@@ -47,11 +49,17 @@ user.post('/login', async (req, res) => {
     try {
   
       const user = await User.findOne({ id, useyn: true });
-  
-      if (!user || user.pw !== pw) {
+      
+      const flagPw = await bcrypt.compare(pw, user.pw);
+       
+
+      if (!user || !flagPw ) {
         return res.status(400).json({ success : false, msg: '아이디/비밀번호를 다시 확인해주세요.' });
       }
-  
+
+      user.accessdate = Date.now();
+      await user.save();
+
       const token = jwt.sign({ id: user._id }, JWT_SECRET, {
         expiresIn: '1h',
       });
@@ -140,8 +148,9 @@ user.get('/logout', authToken, (req, res) => {
 user.post('/signup', async (req, res) => {
   
   const id = req.body.id;
+  const nickname = req.body.nickname;
   const email = req.body.email;
-  const pw = req.body.pw;
+  const ResPw = req.body.pw;
 
   try {
 
@@ -152,14 +161,21 @@ user.post('/signup', async (req, res) => {
       return res.status(400).json({ success : false, msg: '아이디 존재' });
     }
 
+    const nicknameFlag = await User.findOne({ nickname, useyn : true });
+
     // flag 2
+    if (nicknameFlag) {
+      return res.status(400).json({ success : false, msg: '닉네임 존재' });
+    }
+
+    // flag 3
     const emailFlag = await User.findOne({ email, useyn : true });
 
     if (emailFlag) {
       return res.status(400).json({ success : false, msg: '이메일 존재' });
     }
     
-    // flag 3
+    // flag 4
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -174,7 +190,9 @@ user.post('/signup', async (req, res) => {
       return res.status(403).json({ success: false, msg: '이메일 인증만료' });
     }
 
-    const user = new User({ id, pw, email });
+    const pw = await bcrypt.hash(ResPw, 10);
+
+    const user = new User({ id, pw, nickname, email });
     await user.save();
 
     res.status(201).json({ success : true, msg: '회원가입 성공' });
@@ -224,6 +242,7 @@ user.post('/signoff', authToken, async (req, res) => {
       pad(now.getSeconds());
 
     user.id = `${user.id}_delete_${timestamp}`;
+    user.nickname = `${user.nickname}_delete_${timestamp}`;
     user.email = `${user.email}_delete_${timestamp}`;
     user.useyn = false;
     user.usedate = Date.now();
@@ -287,6 +306,62 @@ user.post('/idCheck', checkId, (req, res) => {
 });
 
 /*
+    [POST] /api/v1/user/nameCheck
+    - 입력 닉네임 <-> DB 내 닉네임 간 중복 확인
+
+    0. Import
+      - Function : checkNickname
+    
+    1. Input 
+      - Body   : { nickname : String }
+    
+    2. Output
+      a. Success
+        - status 200 { success : true, msg : '닉네임 중복X' }
+      b. Fail
+        - status 400 { success : false, msg : '닉네임 중복 }
+        - status 500 { success : false, msg : '서버 오류' }
+
+*/
+user.post('/nameCheck', checkNickname, (req, res) => {
+  res.status(200).json({ success: true, msg: '닉네임 중복X' });
+});
+
+/*
+    [GET] /api/v1/user/get-profile
+    - 토큰 활용해 DB 내 정보 가져오기
+
+    0. Import
+      - Function : authToken
+
+    1. Input 
+      - Cookie : { authToken } 
+    
+    2. Output
+      a. Success
+        - status 200 { success : true, msg : '프로필제공 성공' }
+      b. Fail
+        - status 400 { success : false, msg : '만료된 토큰 }
+        - status 500 { success : false, msg : '서버 오류' }
+
+*/
+user.get('/get-profile', authToken, async (req, res) => {
+
+  try{
+    
+    const id = req.user.id; 
+    const nickname = await User.findById(id).select('nickname'); 
+    
+    res.status(200).json({ success: true, nickname: nickname, msg : '프로필제공 성공' });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, msg: '서버 오류' });
+  }
+});
+
+
+/*
     [POST] /api/v1/user/pwChange
     - 비밀번호 변경 
 
@@ -314,11 +389,15 @@ user.post('/pwChange', authToken, async (req, res) => {
 
     const user = await User.findOne({ _id: req.user.id, useyn: true });
 
-    if (newPw == user.pw) {
+    const flagPw = await bcrypt.compare(newPw, user.pw);
+       
+    if (flagPw) {
       return res.status(400).json({ success: false, msg: '구비밀번호와 일치' });
     }
 
-    user.pw = newPw;
+    const hashPw = await bcrypt.hash(newPw, 10);
+    user.pw = hashPw;
+
     await user.save();
 
     return res.status(200).json({ success: true, msg: '비밀번호 변경완료' });
@@ -329,6 +408,54 @@ user.post('/pwChange', authToken, async (req, res) => {
   }
 });
   
+/*
+    [POST] /api/v1/user/change-profile
+    - 프로필 변경 
+
+    0. Import
+      - Function : authToken
+    
+    1. Input 
+      - Cookie : { authToken    }
+      - Body   : { newNickname : String }
+    
+    2. Output
+      a. Success
+        - status 200 { success : true, msg : '프로필 변경완료' }
+      b. Fail
+        - status 400 { success : false, msg : '닉네임 중복' }
+        - status 401 { success : false, msg : '만료된 토큰' }
+        - status 500 { success : false, msg : '서버 오류' }
+
+*/
+user.post('/change-profile', authToken, async (req, res) => {
+
+  const newNickname = req.body.newNickname;
+
+  try{
+
+    const user = await User.findOne({ _id: req.user.id, useyn: true });
+
+    const nameFlag = await User.findOne({ nickname: newNickname });
+
+    if (nameFlag) {
+      return res.status(400).json({ success: false, msg: '닉네임 중복' });
+    }
+
+    user.nickname = newNickname;
+    user.editdate = Date.now();
+
+    await user.save();
+
+    return res.status(200).json({ success: true, msg: '프로필 변경완료' });
+  
+  }
+  catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, msg: '서버 오류' });
+  }
+});
+
 /*
   [POST] /api/v1/user/reset-password
   - 비밀번호 변경
@@ -370,7 +497,8 @@ user.post('/reset-password', async (req, res) => {
     }
 
     // TO-DO
-    user.pw = newPw
+    const hashPw = await bcrypt.hash(newPw, 10);
+    user.pw = hashPw
     await user.save();
 
     result.auth.status = true;

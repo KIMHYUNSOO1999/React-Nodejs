@@ -3,6 +3,7 @@
 */
 
 const User = require('../models/user');
+const bcrypt = require("bcrypt");
 
 /*
     Function checkPassword
@@ -17,12 +18,14 @@ const CheckPw = async (req, res, next) => {
 
         const user = await User.findOne({ _id: req.user.id, useyn: true });
         const ReqPw = req.body.pw
-
+        
         if (!user) {
             return res.status(404).json({ success: false, message: "사용자를 찾을 수 없습니다." });
         }
 
-        if (ReqPw!=user.pw) {
+        const flagPw = await bcrypt.compare(ReqPw, user.pw);
+       
+        if (!flagPw) {
             return res.status(401).json({ success: false, message: "비밀번호 불일치" });
         }
 

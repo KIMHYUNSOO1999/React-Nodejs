@@ -33,7 +33,7 @@ const ResetPw = () => {
         })
         .finally(() => setLoading(false));
     }
-  }, [token, showAlert]);
+  }, [token, navigate, showAlert]);
 
   const handleSubmit = async (e) => {
 
