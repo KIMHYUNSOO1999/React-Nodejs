@@ -17,7 +17,7 @@ function Login({ onLogin }) {
       await axios.post("/api/v1/user/login", { id, pw }, { withCredentials: true });
       const authRes = await axios.get("/api/v1/user/auth", { withCredentials: true });
       onLogin(authRes.data.user);
-      navigate("/");
+      window.location.replace("/");
 
     } catch (err) {
 

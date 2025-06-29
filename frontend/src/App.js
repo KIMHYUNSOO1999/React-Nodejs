@@ -7,8 +7,13 @@ import Register from "./Pages/Register";
 import Login from "./Pages/Login";
 import Profile from "./Pages/Profile";
 import Board from "./Pages/Board";
+import BoardList from "./Pages/BoardList";
+import CreateBoard from "./Pages/CreateBoard";
 import ResetPw from "./Pages/ResetPw";
 import FindEmail from "./Pages/FindEmail";
+import WritePost from "./Pages/WritePost";
+import DetailPost from "./Pages/DetailPost";
+import EditPost from "./Pages/EditPost";
 
 import { Header } from "./Layout/Header";
 import { Navigation } from "./Layout/Navigation";
@@ -19,6 +24,7 @@ import { Sidebar } from "./Layout/Sidebar";
 function App() {
 
   const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const hamburgerRef = useRef(null);
@@ -28,6 +34,7 @@ function App() {
       try {
         const res = await axios.get("/api/v1/user/auth", { withCredentials: true });
         setUser(res.data.user);
+        setAdmin(res.data.admin);
       } catch (err) {
         setUser(null);
       }
@@ -74,13 +81,18 @@ function App() {
         </header>
 
         {/* 사이드바 */}
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} sidebarRef={sidebarRef} />
+        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} sidebarRef={sidebarRef} user={admin} />
 
         {/* 메인 */}
         <main className="p-1 mt-12">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/Board" element={<Board />} />
+            <Route path="/:boardName" element={<Board />} />
+            <Route path="/boardList" element={<BoardList />} />
+            <Route path="/create-board" element={<CreateBoard />} />
+            <Route path="/:boardName/write" element={<WritePost />} />
+            <Route path="/:boardName/:postIndex" element={<DetailPost />} />
+            <Route path="/:boardName/:postIndex/edit" element={<EditPost />} />
             <Route path="/register" element={<Register />} />
             <Route path="/find-email" element={<FindEmail />} />
             <Route path="/reset-password" element={<ResetPw />} />

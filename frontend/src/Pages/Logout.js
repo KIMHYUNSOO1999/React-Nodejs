@@ -11,7 +11,8 @@ function Logout({ onLogout }) {
       
       await axios.get("/api/v1/user/logout", {}, { withCredentials: true });
       onLogout(); 
-      navigate("/");
+      showAlert("로그아웃 성공", "success");
+      window.location.replace("/");
 
     } catch (err) {
 

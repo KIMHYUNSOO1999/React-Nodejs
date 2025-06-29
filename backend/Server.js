@@ -44,6 +44,13 @@ app.use('/api/v1/user', user);
 const emailAuth = require('./routes/emailAuth');
 app.use('/api/v1/auth', emailAuth);
 
+const board = require("./routes/board");
+app.use("/api/v1/board", board);
+
+const comment = require("./routes/comment");
+app.use("/api/v1/comment", comment);
+
+
 /*
    Handling
 */

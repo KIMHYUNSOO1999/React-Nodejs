@@ -5,7 +5,7 @@
 const mongoose = require('mongoose');
 
 /*
-   userSchema
+   UserSchema
 
     - 유저 테이블
 
@@ -70,4 +70,4 @@ const userSchema = new mongoose.Schema({
 
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports  = mongoose.models.User || mongoose.model('User', userSchema);

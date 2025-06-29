@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 
-export function Sidebar({ sidebarOpen, setSidebarOpen, sidebarRef }) {
+export function Sidebar({ sidebarOpen, setSidebarOpen, sidebarRef,user }) {
   return (
     <div
       ref={sidebarRef}
@@ -20,15 +20,26 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, sidebarRef }) {
             홈
           </Link>
         </li>     
-        <li>          
+        <li>
           <Link
-            to="/Board"
+            to="/boardlist"
             onClick={() => setSidebarOpen(false)}
             className="block text-blue-500 font-bold text-lg hover:underline"
           >
-            게시판
+            다중게시판 조회
           </Link>
         </li>
+          {user && (
+          <li>
+            <Link
+              to="/create-board"
+              onClick={() => setSidebarOpen(false)}
+              className="block text-red-500 font-bold text-lg hover:underline"
+            >
+              게시판 생성
+            </Link>
+          </li>
+        )}
       </ul>
     </div>
   );

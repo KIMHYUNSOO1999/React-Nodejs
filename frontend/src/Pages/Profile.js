@@ -20,7 +20,7 @@ function Profile({ onLogout }) {
         const res = await axios.get("/api/v1/user/get-profile", {
           withCredentials: true,
         });
-        setUser(res.data.nickname); // 서버에서 nickname 객체 반환 시 구조 주의
+        setUser(res.data.nickname); 
       } catch (err) {
         showAlert("인증 실패", "error");
       } finally {

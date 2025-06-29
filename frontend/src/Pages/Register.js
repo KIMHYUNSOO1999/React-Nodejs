@@ -98,7 +98,6 @@ function Register() {
     >
       <h2 className="text-2xl font-bold">회원가입</h2>
 
-      {/* 아이디 입력 + 중복확인 */}
       <div className="flex gap-2">
         <input
           className="w-full p-2 border rounded"
@@ -119,7 +118,6 @@ function Register() {
         </p>
       )}
 
-      {/* 닉네임 입력 + 중복확인 */}
       <div className="flex gap-2">
         <input
           className="w-full p-2 border rounded"
@@ -140,13 +138,11 @@ function Register() {
         </p>
       )}
 
-      {/* 이메일 인증 요청 */}
       <SendRegister
         onVerificationRequest={handleEmailVerificationRequest}
         isEmailVerified={isEmailVerified}
       />
 
-      {/* 이메일 인증 입력창 */}
       {showVerificationInput && !isEmailVerified && (
         <VerifyRegister
           email={email}
@@ -158,7 +154,6 @@ function Register() {
         <p className="text-sm text-green-600">이메일 인증이 완료되었습니다.</p>
       )}
 
-      {/* 비밀번호 입력 */}
       <input
         className="w-full p-2 border rounded"
         placeholder="비밀번호"
@@ -168,7 +163,6 @@ function Register() {
         required
       />
 
-      {/* 회원가입 버튼 */}
       <button
         type="submit"
         className={`w-full text-white p-2 rounded ${

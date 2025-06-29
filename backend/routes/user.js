@@ -101,7 +101,8 @@ user.get('/auth', authToken, async (req, res) => {
     res.status(200).json({
       success : true,
       msg: '유효한 토큰',
-      user: user.id 
+      user: user.id,
+      admin : user.adminyn 
     });
 
 });
